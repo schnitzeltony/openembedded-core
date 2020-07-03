@@ -1,0 +1,93 @@
+From 21121d15ad17ad5b83e276275158e90e92423675 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Fri, 3 Jul 2020 23:38:57 +0200
+Subject: [PATCH] mno-docs
+
+---
+ dev.mk.in | 42 +++---------------------------------------
+ 1 file changed, 3 insertions(+), 39 deletions(-)
+
+diff --git a/dev.mk.in b/dev.mk.in
+index 2e3ac90..cdf9816 100644
+--- a/dev.mk.in
++++ b/dev.mk.in
+@@ -4,8 +4,8 @@ all_cflags += -Werror
+ all_cppflags += -MD -MP -MF .deps/$(subst .._,,$(subst /,_,$(subst $(srcdir)/,,$<))).d -MQ $@
+ 
+ A2X = a2x
+-ASCIIDOC = asciidoc
+-CPPCHECK = cppcheck
++ASCIIDOC =
++CPPCHECK =
+ CPPCHECK_SUPPRESSIONS = misc/cppcheck-suppressions.txt
+ SHELLCHECK = shellcheck
+ SHELLCHECK_EXCLUDES = misc/shellcheck-excludes.txt
+@@ -25,13 +25,7 @@ dist_archives = \
+     ccache-$(version).tar.gz \
+     ccache-$(version).tar.xz
+ 
+-generated_docs = \
+-    LICENSE.html \
+-    doc/AUTHORS.html \
+-    doc/MANUAL.html \
+-    doc/NEWS.html \
+-    doc/ccache.1
+-built_dist_files = $(generated_sources) $(generated_docs)
++built_dist_files = $(generated_sources)
+ 
+ headers = \
+     src/ccache.h \
+@@ -72,7 +66,6 @@ source_dist_files = \
+     $(test_sources) \
+     CONTRIBUTING.md \
+     GPL-3.0.txt \
+-    LICENSE.adoc \
+     Makefile.in \
+     README.md \
+     autogen.sh \
+@@ -82,9 +75,6 @@ source_dist_files = \
+     configure \
+     configure.ac \
+     dev.mk.in \
+-    doc/AUTHORS.adoc \
+-    doc/MANUAL.adoc \
+-    doc/NEWS.adoc \
+     install-sh \
+     m4 \
+     src/confitems.gperf \
+@@ -170,32 +160,6 @@ distcheck: $(firstword $(dist_archives))
+ 	$(call do_distcheck, CC=clang)
+ 
+ .PHONY: docs
+-docs: $(generated_docs)
+-
+-%.html: %.adoc
+-	@mkdir -p $(@D)
+-	$(if $(quiet),@echo "  ASCIIDOC $@")
+-	$(Q)$(ASCIIDOC) -o $@ -a revnumber=$(version) -a toc -b xhtml11 $<
+-
+-%.xml: %.adoc
+-	@mkdir -p $(@D)
+-# Make literals stand out as bold in the man page:
+-	$(if $(quiet),@echo "  ASCIIDOC $@")
+-	$(Q)$(ASCIIDOC) -a revnumber=$(version) -d manpage -b docbook -o - $< | \
+-	  perl -pe 's!<literal>(.*?)</literal>!<emphasis role="strong">\1</emphasis>!g' >$@
+-
+-doc/ccache.1: doc/MANUAL.xml
+-	$(if $(quiet),@echo "  A2X      $@")
+-	$(Q)$(A2X) --doctype manpage --format manpage $<
+-
+-.PHONY: update-authors
+-update-authors:
+-	git log --pretty=format:"%H %aN%n%(trailers:only)" \
+-	  | grep -Ev 'd7c5056beda5483fcd5c098165fffd9be86fe98d|http|Conflicts:' \
+-	  | grep '^[^ ]' \
+-	  | sed -r -e 's/[^ ]+/*/' -e 's/<.*//' -e 's/ *$$//' \
+-	  | sort -u \
+-	  | perl -00 -p -i -e 's/^\*.*/<STDIN> . "\n"/es' doc/AUTHORS.adoc
+ 
+ .PHONY: check-syntax
+ check-syntax:
+-- 
+2.26.2
+
